@@ -1,11 +1,17 @@
 import cv2
 import os
 from flask import Flask, Response, jsonify
+from dotenv import load_dotenv
 
-# Flask app setup
+# ---------------- Load Environment Variables ---------------- #
+load_dotenv()
+
+VIDEO_FOLDER = os.getenv("VIDEO_FOLDER")
+HOST = os.getenv("FLASK_HOST")  # fallback localhost
+PORT = int(os.getenv("FLASK_PORT"))
+
+# ---------------- Flask App Setup ---------------- #
 app = Flask(__name__)
-
-VIDEO_FOLDER ="/apps/packmat_pwani_updated/Pwani_packmat_/outputs"
 os.makedirs(VIDEO_FOLDER, exist_ok=True)
 
 def resize_frame(frame, target_height):
@@ -21,33 +27,29 @@ def generate_frames(video_path):
     while cap.isOpened():
         ret, img = cap.read()
         if ret:
-            # Encode as JPEG
             frame = cv2.imencode('.jpg', img)[1].tobytes()
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         else:
-            # Restart video when finished
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Restart video
 
-
-# Dynamically register routes for all .mp4 files in folder
+# ---------------- Register Routes Dynamically ---------------- #
 for file in os.listdir(VIDEO_FOLDER):
     if file.lower().endswith(".mp4"):
-        filename = os.path.splitext(file)[0]  # Remove .mp4
+        filename = os.path.splitext(file)[0]
         video_path = os.path.join(VIDEO_FOLDER, file)
 
         def make_route(path=video_path):
-            return lambda: Response(generate_frames(path),
-                                    mimetype='multipart/x-mixed-replace; boundary=frame')
+            return lambda: Response(
+                generate_frames(path),
+                mimetype='multipart/x-mixed-replace; boundary=frame'
+            )
 
         app.add_url_rule(f"/{filename}", filename, make_route())
-
 
 @app.route('/test')
 def hello_world():
     return jsonify({"Hello": "World"})
 
-
 if __name__ == "__main__":
-    app.run(port=5009, host='192.168.5.82')
- 
+    app.run(port=PORT, host=HOST)
