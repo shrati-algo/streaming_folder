@@ -65,4 +65,4 @@ if __name__ == "__main__":
             link = add_video_route(file)
             print(f"🎥 Streaming URL: {link}")
 
-    app.run(port=5006, host='0.0.0.0')
+    app.run(port=5009, host='0.0.0.0')
