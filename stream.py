@@ -50,7 +50,7 @@ def add_video_route(video_filename):
     if route_path not in [rule.rule for rule in app.url_map.iter_rules()]:
         app.add_url_rule(route_path, video_filename, route_func)
 
-    return f"http://192.168.5.82:5006{route_path}"
+    return f"http://192.168.5.82:5009{route_path}"
 
 
 @app.route('/test')
