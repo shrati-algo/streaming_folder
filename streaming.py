@@ -6,8 +6,7 @@ import os
 app = FastAPI()
 
 # Folder containing saved videos
-# VIDEO_FOLDER = "/apps/packmat_pwani_updated/Pwani_packmat_/outputs"
-VIDEO_FOLDER = r"outputs"
+VIDEO_FOLDER = "/apps/packmat_pwani_updated/Pwani_packmat_/outputs"
 
 os.makedirs(VIDEO_FOLDER, exist_ok=True)
 
@@ -62,4 +61,5 @@ async def list_videos():
 @app.get("/test")
 async def test():
     return JSONResponse({"Hello": "World"})
+
  
